@@ -47,7 +47,14 @@ impl Config {
                     break;
                 },
                 "-l" | "--list" => config.command = Command::List,
-                "-f" | "--file" => config.filename = args.next().unwrap(),
+                "-f" | "--file" => {
+                    let a = args.next();
+                    if a.as_ref().map_or(true, |f| f.starts_with("-")) {
+                        return Err("'-f' requires a file name");
+                    } else {
+                        config.filename = a.unwrap();
+                    }
+                },
                 _ => return Err("Unknown option. see --help"),
             }
         }

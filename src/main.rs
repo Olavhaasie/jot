@@ -4,7 +4,7 @@ use jot::config::Config;
 
 fn main() {
     let config = Config::new(std::env::args()).unwrap_or_else(|err| {
-        eprintln!("There was a problem parsing arguments: {}", err);
+        eprintln!("error: {}", err);
         std::process::exit(1);
     });
 
