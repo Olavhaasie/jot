@@ -5,7 +5,8 @@ use chrono::prelude::*;
 use std::error::Error;
 use std::fmt;
 use std::fs::File;
-use std::io::BufReader;
+use std::fs::OpenOptions;
+use std::io::{BufReader, BufWriter};
 use std::io::prelude::*;
 
 pub struct Entry {
@@ -61,5 +62,24 @@ impl Journal {
         }
         Ok(Journal{ entries })
     }
+
+    pub fn write_entry(entry: &str, filename: &str) -> Result<(), Box<Error>> {
+        let journal = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open(filename)?;
+
+        let mut journal = BufWriter::new(journal);
+
+        journal.write(b"# ")?;
+        journal.write(Local::now().to_rfc3339().as_bytes())?;
+        journal.write(b"\n")?;
+        journal.write(entry.as_bytes())?;
+        journal.write(b"\n")?;
+        journal.flush()?;
+
+        Ok(())
+    }
+
 }
 

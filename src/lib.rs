@@ -1,13 +1,10 @@
 extern crate chrono;
 
-use chrono::prelude::*;
-
 use config::{Command, Config};
 use journal::Journal;
 
 use std::error::Error;
-use std::fs::OpenOptions;
-use std::io::{BufWriter, Read, Write};
+use std::io::Read;
 
 pub mod config;
 mod journal;
@@ -28,7 +25,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
             let mut input = String::new();
             stdin.lock().read_to_string(&mut input)?;
 
-            write_entry(&input, &config.filename)
+            Journal::write_entry(&input, &config.filename)
         },
         Command::List => {
             let journal = Journal::new(&config.filename)?;
@@ -37,22 +34,3 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
         },
     }
 }
-
-fn write_entry(entry: &str, filename: &str) -> Result<(), Box<Error>> {
-    let journal = OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open(filename)?;
-
-    let mut journal = BufWriter::new(journal);
-
-    journal.write(b"# ")?;
-    journal.write(Local::now().to_rfc3339().as_bytes())?;
-    journal.write(b"\n")?;
-    journal.write(entry.as_bytes())?;
-    journal.write(b"\n")?;
-    journal.flush()?;
-
-    Ok(())
-}
-
