@@ -2,45 +2,26 @@ extern crate chrono;
 
 use chrono::prelude::*;
 
+use config::{Command, Config};
+use journal::Journal;
+
 use std::error::Error;
 use std::fs::OpenOptions;
 use std::io::{BufWriter, Read, Write};
 
+pub mod config;
 mod journal;
-use journal::{Entry, Journal};
-
-const DEFAULT_FILENAME: &str = "journal.txt";
-
-pub enum Command {
-    Help,
-    Version,
-    Edit,
-    List,
-}
-
-pub struct Config {
-    pub name: String,
-    pub command: Command,
-    pub filename: String,
-    pub color: bool,
-}
-
-impl Config {
-    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
-        let name = args.next().unwrap();
-
-        let command = match args.next() {
-            Some(ref s) if s == "ls" => Command::List,
-            Some(_) => return Err("Unknown command"),
-            None => Command::Edit,
-        };
-
-        Ok(Config { name, command, filename: DEFAULT_FILENAME.to_string(), color: true })
-    }
-}
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     match config.command {
+        Command::Help => {
+            println!("{}", config::HELP_INFO);
+            Ok(())
+        },
+        Command::Version => {
+            println!("{} {}", config::NAME.unwrap_or(&config.name), config::VERSION.unwrap_or("unknown version"));
+            Ok(())
+        },
         Command::Edit => {
             println!("Start typing:");
             let stdin = std::io::stdin();
