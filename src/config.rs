@@ -10,7 +10,12 @@ OPTIONS:
     -l, --list     List all journal entries and exit
     -f, --file     Journal file to add to/read from
     -V, --version  Print version
-    -h, --help     Print this help information\
+    -h, --help     Print this help information
+
+Jot has two modes: edit and list.
+You can enter edit mode with just `jot`, then you can start typing.
+When finished writing you can press ^D (Control-D) to save the journal entry.
+The list mode can be used by giving the '--list' option.\
 ";
 
 pub const DEFAULT_FILENAME: &'static str = "journal.txt";
