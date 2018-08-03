@@ -3,6 +3,12 @@ name = "jot"
 version = "0.1.0"
 authors = ["Olav de Haas <o.n.dehaas@student.tudelft.nl>"]
 
+keywords = [ "cli", "terminal", "journal", "daybook" ]
+categories = [ "command-line-interface", "command-line-utilities" ]
+
+repository = "https://github.com/Olavhaasie/jot"
+license = "MIT"
+
 [dependencies]
 chrono = "0.4.0"
 
