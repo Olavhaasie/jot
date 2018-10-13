@@ -57,9 +57,14 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
 
             while let Some(row) = cursor.next().unwrap() {
                 let timestamp = row[2].as_integer().unwrap();
-                let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
-                println!("# {}", date.format("%b %e %Y - %H:%M").to_string());
-                println!("{}", String::from_utf8(row[1].as_binary().unwrap().to_vec()).unwrap());
+                let date =
+                    DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
+                println!("{}", timestamp);
+                println!("# {}", date.with_timezone(&Local).format("%b %e %Y - %H:%M").to_string());
+                println!(
+                    "{}",
+                    String::from_utf8(row[1].as_binary().unwrap().to_vec()).unwrap()
+                );
             }
             Ok(())
         }
