@@ -1,26 +1,8 @@
 use std::env;
 
-pub const HELP_INFO: &'static str = "\
-personal journal for command line
-
-USAGE:
-    jot [OPTIONS]
-
-OPTIONS:
-    -l, --list          List all journal entries and exit
-    -f, --file <db>     Journal database to add to/read from
-    -V, --version       Print version
-    -h, --help          Print this help information
-
-Jot has two modes: edit and list.
-You can enter edit mode with just `jot`, then you can start typing.
-When finished writing you can press ^D (Control-D) to save the journal entry.
-The list mode can be used by giving the '--list' option.\
-";
-
-pub const DEFAULT_FILENAME: &'static str = "journal.db";
-pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
-pub const NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
+const DEFAULT_FILENAME: &'static str = "journal.db";
+const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
+const NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
 
 pub enum Command {
     Help,
@@ -41,7 +23,7 @@ impl Config {
         let name = args.next().unwrap();
 
         let mut config = Config {
-            name,
+            name: NAME.unwrap_or(&name).to_string(),
             command: Command::Edit,
             filename: DEFAULT_FILENAME.to_string(),
             color: true,
@@ -69,5 +51,31 @@ impl Config {
             }
         }
         Ok(config)
+    }
+
+    pub fn print_version(&self) {
+        println!("{} {}", self.name, VERSION.unwrap_or("[unknown version]"));
+    }
+
+    pub fn print_help(&self) {
+        println!(
+            "\
+personal journal for command line
+
+USAGE:
+{} [OPTIONS]
+
+OPTIONS:
+-l, --list          List all journal entries and exit
+-f, --file <db>     Journal database to add to/read from
+-V, --version       Print version
+-h, --help          Print this help information
+
+Jot has two modes: edit and list.
+You can enter edit mode with no arguments, then you can start typing.
+When finished writing you can press ^D (Control-D) to save the journal entry.
+The list mode can be used by giving the '--list' option.",
+            self.name
+        );
     }
 }

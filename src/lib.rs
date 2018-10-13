@@ -4,7 +4,6 @@ extern crate sqlite;
 use chrono::prelude::*;
 use chrono::Utc;
 use config::{Command, Config};
-use journal::Journal;
 use sqlite::Connection;
 
 use std::error::Error;
@@ -12,24 +11,18 @@ use std::io::Read;
 use std::path::Path;
 
 pub mod config;
-mod journal;
 
-const CREATE_QUERY: &'static str = "CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT, date INTEGER)";
+const CREATE_QUERY: &'static str =
+    "CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT, date INTEGER)";
 const INSERT_QUERY: &'static str = "INSERT INTO entries (entry, date) VALUES (?, ?)";
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     match config.command {
         Command::Help => {
-            println!("{}", config::HELP_INFO);
-            Ok(())
+            config.print_help();
         }
         Command::Version => {
-            println!(
-                "{} {}",
-                config::NAME.unwrap_or(&config.name),
-                config::VERSION.unwrap_or("unknown version")
-            );
-            Ok(())
+            config.print_version();
         }
         Command::Edit => {
             println!("Start typing:");
@@ -44,11 +37,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
             statement.bind(1, &input[..])?;
             statement.bind(2, Local::now().timestamp())?;
 
-            let mut cursor = statement.cursor();
-            while let Some(row) = cursor.next().unwrap() {
-                println!("{:?}", row);
-            }
-            Ok(())
+            statement.next()?;
         }
         Command::List => {
             let connection = get_connection(&config.filename)?;
@@ -66,9 +55,9 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
                     String::from_utf8(row[1].as_binary().unwrap().to_vec()).unwrap()
                 );
             }
-            Ok(())
         }
-    }
+    };
+    Ok(())
 }
 
 fn get_connection(path: &str) -> Result<Connection, Box<Error>> {
