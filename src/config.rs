@@ -7,10 +7,10 @@ USAGE:
     jot [OPTIONS]
 
 OPTIONS:
-    -l, --list     List all journal entries and exit
-    -f, --file     Journal file to add to/read from
-    -V, --version  Print version
-    -h, --help     Print this help information
+    -l, --list          List all journal entries and exit
+    -f, --file <db>     Journal database to add to/read from
+    -V, --version       Print version
+    -h, --help          Print this help information
 
 Jot has two modes: edit and list.
 You can enter edit mode with just `jot`, then you can start typing.
@@ -18,7 +18,7 @@ When finished writing you can press ^D (Control-D) to save the journal entry.
 The list mode can be used by giving the '--list' option.\
 ";
 
-pub const DEFAULT_FILENAME: &'static str = "journal.txt";
+pub const DEFAULT_FILENAME: &'static str = "journal.db";
 pub const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
 pub const NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
 
@@ -40,17 +40,22 @@ impl Config {
     pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
         let name = args.next().unwrap();
 
-        let mut config = Config { name, command: Command::Edit, filename: DEFAULT_FILENAME.to_string(), color: true };
+        let mut config = Config {
+            name,
+            command: Command::Edit,
+            filename: DEFAULT_FILENAME.to_string(),
+            color: true,
+        };
         while let Some(arg) = args.next() {
             match arg.as_ref() {
                 "-h" | "--help" => {
                     config.command = Command::Help;
                     break;
-                },
+                }
                 "-V" | "--version" => {
                     config.command = Command::Version;
                     break;
-                },
+                }
                 "-l" | "--list" => config.command = Command::List,
                 "-f" | "--file" => {
                     let a = args.next();
@@ -59,11 +64,10 @@ impl Config {
                     } else {
                         config.filename = a.unwrap();
                     }
-                },
+                }
                 _ => return Err("Unknown option. see --help"),
             }
         }
         Ok(config)
     }
 }
-
