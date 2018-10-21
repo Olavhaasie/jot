@@ -1,4 +1,5 @@
 use std::env;
+use std::path::PathBuf;
 
 const DEFAULT_FILENAME: &'static str = "journal.db";
 const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
@@ -14,7 +15,7 @@ pub enum Command {
 pub struct Config {
     pub name: String,
     pub command: Command,
-    pub filename: String,
+    pub path: PathBuf,
     pub color: bool,
 }
 
@@ -25,7 +26,7 @@ impl Config {
         let mut config = Config {
             name: NAME.unwrap_or(&name).to_string(),
             command: Command::Edit,
-            filename: DEFAULT_FILENAME.to_string(),
+            path: PathBuf::from(DEFAULT_FILENAME.to_string()),
             color: true,
         };
         while let Some(arg) = args.next() {
@@ -42,10 +43,13 @@ impl Config {
                 "-f" | "--file" => {
                     let a = args.next();
                     if a.as_ref().map_or(true, |f| f.starts_with("-")) {
-                        return Err("'-f' requires a file name");
-                    } else {
-                        config.filename = a.unwrap();
+                        return Err("'--file' requires a file name");
                     }
+                    let path = PathBuf::from(a.unwrap());
+                    if path.is_dir() {
+                        return Err("Argument for '--file' can not be a directory");
+                    }
+                    config.path = path;
                 }
                 _ => return Err("Unknown option. see --help"),
             }

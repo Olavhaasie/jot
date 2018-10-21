@@ -25,14 +25,14 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
             config.print_version();
         }
         Command::Edit => {
+            let connection = get_connection(&config.path)?;
+            let mut statement = connection.prepare(INSERT_QUERY)?;
+
             println!("Start typing:");
             let stdin = std::io::stdin();
             let mut input = String::new();
             stdin.lock().read_to_string(&mut input)?;
             let input = input.into_bytes();
-
-            let connection = get_connection(&config.filename)?;
-            let mut statement = connection.prepare(INSERT_QUERY)?;
 
             statement.bind(1, &input[..])?;
             statement.bind(2, Local::now().timestamp())?;
@@ -40,7 +40,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
             statement.next()?;
         }
         Command::List => {
-            let connection = get_connection(&config.filename)?;
+            let connection = get_connection(&config.path)?;
             let statement = connection.prepare("SELECT * FROM entries")?;
             let mut cursor = statement.cursor();
 
@@ -48,8 +48,12 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
                 let timestamp = row[2].as_integer().unwrap();
                 let date =
                     DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
-                println!("{}", timestamp);
-                println!("# {}", date.with_timezone(&Local).format("%b %e %Y - %H:%M").to_string());
+                println!(
+                    "# {}",
+                    date.with_timezone(&Local)
+                        .format("%b %e %Y - %H:%M")
+                        .to_string()
+                );
                 println!(
                     "{}",
                     String::from_utf8(row[1].as_binary().unwrap().to_vec()).unwrap()
@@ -60,9 +64,9 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     Ok(())
 }
 
-fn get_connection(path: &str) -> Result<Connection, Box<Error>> {
-    let file_exists = Path::new(path).is_file();
-    let connection = sqlite::open(path)?;
+fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {
+    let file_exists = path.exists();
+    let connection = sqlite::open(path.to_str().unwrap())?;
     if !file_exists {
         connection.execute(CREATE_QUERY)?;
     }
