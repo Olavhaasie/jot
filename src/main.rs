@@ -11,6 +11,6 @@ fn main() {
 }
 
 fn error_main() -> Result<(), Box<Error>> {
-    let config = Config::new(std::env::args())?;
+    let config = Config::new();
     jot::run(config)
 }

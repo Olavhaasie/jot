@@ -2,6 +2,7 @@
 name = "jot"
 version = "0.1.0"
 authors = ["Olav de Haas <o.n.dehaas@student.tudelft.nl>"]
+description = "terminal based digital personal journal📔"
 
 keywords = [ "cli", "terminal", "journal", "daybook" ]
 categories = [ "command-line-interface", "command-line-utilities" ]
@@ -10,6 +11,8 @@ repository = "https://github.com/Olavhaasie/jot"
 license = "MIT"
 
 [dependencies]
+clap = "2.32.0"
 chrono = "0.4.0"
+chrono-english = "0.1.4"
 sqlite = "0.24"
 

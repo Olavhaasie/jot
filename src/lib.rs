@@ -1,4 +1,6 @@
+extern crate clap;
 extern crate chrono;
+extern crate chrono_english;
 extern crate sqlite;
 
 use chrono::prelude::*;
@@ -8,7 +10,7 @@ use sqlite::Connection;
 
 use std::error::Error;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub mod config;
 
@@ -17,15 +19,10 @@ const CREATE_QUERY: &'static str =
 const INSERT_QUERY: &'static str = "INSERT INTO entries (entry, date) VALUES (?, ?)";
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
+    let path = PathBuf::from(config.matches.value_of("db").unwrap());
     match config.command {
-        Command::Help => {
-            config.print_help();
-        }
-        Command::Version => {
-            config.print_version();
-        }
         Command::Edit => {
-            let connection = get_connection(&config.path)?;
+            let connection = get_connection(&path)?;
             let mut statement = connection.prepare(INSERT_QUERY)?;
 
             println!("Start typing:");
@@ -40,7 +37,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
             statement.next()?;
         }
         Command::List => {
-            let connection = get_connection(&config.path)?;
+            let connection = get_connection(&path)?;
             let statement = connection.prepare("SELECT * FROM entries")?;
             let mut cursor = statement.cursor();
 
@@ -49,7 +46,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
                 let date =
                     DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
                 println!(
-                    "# {}",
+                    "\x1b[1;35m# {}\x1b[0m",
                     date.with_timezone(&Local)
                         .format("%b %e %Y - %H:%M")
                         .to_string()

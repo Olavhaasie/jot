@@ -1,85 +1,52 @@
-use std::env;
-use std::path::PathBuf;
+use clap::{Arg, ArgMatches, App, app_from_crate, crate_name, crate_version, crate_description, crate_authors};
 
 const DEFAULT_FILENAME: &'static str = "journal.db";
-const VERSION: Option<&'static str> = option_env!("CARGO_PKG_VERSION");
-const NAME: Option<&'static str> = option_env!("CARGO_PKG_NAME");
 
 pub enum Command {
-    Help,
-    Version,
     Edit,
     List,
 }
 
-pub struct Config {
-    pub name: String,
+pub struct Config<'a> {
     pub command: Command,
-    pub path: PathBuf,
-    pub color: bool,
+    pub matches: ArgMatches<'a>,
 }
 
-impl Config {
-    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
-        let name = args.next().unwrap();
+impl<'a> Config<'a> {
+    pub fn new() -> Config<'a> {
+        let matches = clap::app_from_crate!()
+            .arg(Arg::with_name("color")
+                 .short("n")
+                 .long("no-color")
+                 .help("disables colored output"))
+            .arg(Arg::with_name("db")
+                 .short("d")
+                 .long("database")
+                 .value_name("FILE")
+                 .takes_value(true)
+                 .default_value(DEFAULT_FILENAME)
+                 .help("journal database to read from"))
+            .arg(Arg::with_name("list")
+                 .short("l")
+                 .long("list")
+                 .help("lists all journal entries"))
+            .arg(Arg::with_name("from")
+                 .short("f")
+                 .long("from")
+                 .value_name("DATE")
+                 .takes_value(true)
+                 .possible_values(&["2018", "friday"])
+                 .help("sets lower boundary date to retrieve journal entries"))
+            .arg(Arg::with_name("to")
+                 .short("t")
+                 .long("to")
+                 .value_name("DATE")
+                 .takes_value(true)
+                 .possible_values(&["2018", "friday"])
+                 .help("sets upper boundary date to retrieve journal entries"))
+            .get_matches();
 
-        let mut config = Config {
-            name: NAME.unwrap_or(&name).to_string(),
-            command: Command::Edit,
-            path: PathBuf::from(DEFAULT_FILENAME.to_string()),
-            color: true,
-        };
-        while let Some(arg) = args.next() {
-            match arg.as_ref() {
-                "-h" | "--help" => {
-                    config.command = Command::Help;
-                    break;
-                }
-                "-V" | "--version" => {
-                    config.command = Command::Version;
-                    break;
-                }
-                "-l" | "--list" => config.command = Command::List,
-                "-f" | "--file" => {
-                    let a = args.next();
-                    if a.as_ref().map_or(true, |f| f.starts_with("-")) {
-                        return Err("'--file' requires a file name");
-                    }
-                    let path = PathBuf::from(a.unwrap());
-                    if path.is_dir() {
-                        return Err("Argument for '--file' can not be a directory");
-                    }
-                    config.path = path;
-                }
-                _ => return Err("Unknown option. see --help"),
-            }
-        }
-        Ok(config)
-    }
-
-    pub fn print_version(&self) {
-        println!("{} {}", self.name, VERSION.unwrap_or("[unknown version]"));
-    }
-
-    pub fn print_help(&self) {
-        println!(
-            "\
-personal journal for command line
-
-USAGE:
-{} [OPTIONS]
-
-OPTIONS:
--l, --list          List all journal entries and exit
--f, --file <db>     Journal database to add to/read from
--V, --version       Print version
--h, --help          Print this help information
-
-Jot has two modes: edit and list.
-You can enter edit mode with no arguments, then you can start typing.
-When finished writing you can press ^D (Control-D) to save the journal entry.
-The list mode can be used by giving the '--list' option.",
-            self.name
-        );
+        let list = matches.is_present("list") || matches.is_present("from") || matches.is_present("to");
+        Config { command: if list { Command::List } else { Command::Edit }, matches }
     }
 }
