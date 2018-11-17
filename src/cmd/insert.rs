@@ -1,10 +1,10 @@
-use chrono::prelude::*;
 use clap::ArgMatches;
 use sqlite::Connection;
 use std::error::Error;
 use std::io::Read;
 
-const INSERT_QUERY: &'static str = "INSERT INTO entries (entry, date) VALUES (?, ?)";
+const INSERT_QUERY: &'static str =
+    "INSERT INTO entries (entry, date) VALUES (?, strftime('%s','now'))";
 
 pub fn insert(connection: Connection, _matches: ArgMatches) -> Result<(), Box<Error>> {
     let mut statement = connection.prepare(INSERT_QUERY)?;
@@ -16,7 +16,6 @@ pub fn insert(connection: Connection, _matches: ArgMatches) -> Result<(), Box<Er
     let input = input.into_bytes();
 
     statement.bind(1, &input[..])?;
-    statement.bind(2, Local::now().timestamp())?;
 
     statement.next()?;
     Ok(())
