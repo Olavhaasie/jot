@@ -37,16 +37,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "chrono-english"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "chrono 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "scanlex 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "time 0.1.40 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "clap"
 version = "2.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -65,7 +55,6 @@ name = "jot"
 version = "0.1.0"
 dependencies = [
  "chrono 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "chrono-english 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "sqlite 0.24.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -105,11 +94,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "redox_syscall 0.1.40 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "scanlex"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "sqlite"
@@ -206,7 +190,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum bitflags 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "228047a76f468627ca71776ecdebd732a3423081fcf5125585bcd7c49886ce12"
 "checksum cc 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)" = "f159dfd43363c4d08055a07703eb7a3406b0dac4d0584d96965a3262db3c9d16"
 "checksum chrono 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "6962c635d530328acc53ac6a955e83093fedc91c5809dfac1fa60fa470830a37"
-"checksum chrono-english 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "4233ee19352739cfdcb5d7c2085005b166f6170ef2845ed9eef27a8fa5f95206"
 "checksum clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b957d88f4b6a63b9d70d5f454ac8011819c6efa7727858f458ab71c756ce2d3e"
 "checksum libc 0.2.42 (registry+https://github.com/rust-lang/crates.io-index)" = "b685088df2b950fccadf07a7187c8ef846a959c142338a48f9dc0b94517eb5f1"
 "checksum num-integer 0.1.39 (registry+https://github.com/rust-lang/crates.io-index)" = "e83d528d2677f0518c570baf2b7abdcf0cd2d248860b68507bdcb3e91d4c0cea"
@@ -214,7 +197,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)" = "676e8eb2b1b4c9043511a9b7bea0915320d7e502b0a079fb03f9635a5252b18c"
 "checksum redox_syscall 0.1.40 (registry+https://github.com/rust-lang/crates.io-index)" = "c214e91d3ecf43e9a4e41e578973adeb14b474f2bee858742d127af75a0112b1"
 "checksum redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7e891cfe48e9100a70a3b6eb652fef28920c117d366339687bd5576160db0f76"
-"checksum scanlex 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e6a2c84b697bc9496978f7457b17039a22b5d89c674964e8a480de4d5ddd55dc"
 "checksum sqlite 0.24.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c3bdcd8ae03982ddb21cf0217ae34d4555fc2fd0db465cb666fea82644b77f3b"
 "checksum sqlite3-src 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)" = "62cd5d67c1eb94a2a019b8049f625f65ae7faee8f3c54f0197e5dbc68d5f698c"
 "checksum sqlite3-sys 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)" = "71fec807a1534bd13eeaaec396175d67c79bdc68df55e18a452726ec62a8fb08"

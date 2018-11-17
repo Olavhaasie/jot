@@ -1,6 +1,5 @@
-extern crate clap;
 extern crate chrono;
-extern crate chrono_english;
+extern crate clap;
 extern crate sqlite;
 
 use chrono::prelude::*;
@@ -20,9 +19,10 @@ const INSERT_QUERY: &'static str = "INSERT INTO entries (entry, date) VALUES (?,
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     let path = PathBuf::from(config.matches.value_of("db").unwrap());
+    let connection = get_connection(&path)?;
+
     match config.command {
         Command::Edit => {
-            let connection = get_connection(&path)?;
             let mut statement = connection.prepare(INSERT_QUERY)?;
 
             println!("Start typing:");
@@ -37,8 +37,27 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
             statement.next()?;
         }
         Command::List => {
-            let connection = get_connection(&path)?;
-            let statement = connection.prepare("SELECT * FROM entries")?;
+            let from = config.matches.value_of("from").map(|f| {
+                Local
+                    .datetime_from_str(&format!("{} 00:00:00", f), "%d-%m-%Y %T")
+                    .map(|d| d.timestamp())
+            });
+            let to = config.matches.value_of("to").map(|t| {
+                Local
+                    .datetime_from_str(&format!("{} 00:00:00", t), "%d-%m-%Y %T")
+                    .map(|d| d.timestamp())
+            });
+
+            let mut query = String::from("SELECT * FROM entries");
+            match (from, to) {
+                (Some(f), Some(t)) => {
+                    query.push_str(&format!(" WHERE date > {} AND date < {}", f?, t?))
+                }
+                (Some(f), None) => query.push_str(&format!(" WHERE date > {}", f?)),
+                (None, Some(t)) => query.push_str(&format!(" WHERE date < {}", t?)),
+                (None, None) => (),
+            }
+            let statement = connection.prepare(query)?;
             let mut cursor = statement.cursor();
 
             while let Some(row) = cursor.next().unwrap() {
