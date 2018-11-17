@@ -5,7 +5,7 @@ extern crate sqlite;
 mod cmd;
 pub mod config;
 
-use config::{Command, Config};
+use config::Config;
 use sqlite::Connection;
 
 use std::error::Error;
@@ -18,10 +18,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     let path = PathBuf::from(config.matches.value_of("db").unwrap());
     let connection = get_connection(&path)?;
 
-    match config.command {
-        Command::Insert => cmd::insert(connection, config.matches),
-        Command::List => cmd::list(connection, config.matches),
-    }
+    config.command.run(connection, config.matches)
 }
 
 fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {

@@ -1,13 +1,10 @@
+use super::cmd::Command;
+
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, ArgMatches,
 };
 
 const DEFAULT_FILENAME: &'static str = "journal.db";
-
-pub enum Command {
-    Insert,
-    List,
-}
 
 pub struct Config<'a> {
     pub command: Command,
