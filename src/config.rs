@@ -5,7 +5,7 @@ use clap::{
 const DEFAULT_FILENAME: &'static str = "journal.db";
 
 pub enum Command {
-    Edit,
+    Insert,
     List,
 }
 
@@ -54,7 +54,7 @@ impl<'a> Config<'a> {
         let list =
             matches.is_present("list") || matches.is_present("from") || matches.is_present("to");
         Config {
-            command: if list { Command::List } else { Command::Edit },
+            command: if list { Command::List } else { Command::Insert },
             matches,
         }
     }
