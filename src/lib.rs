@@ -12,7 +12,8 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 
 const CREATE_QUERY: &'static str =
-    "CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT, date INTEGER)";
+    "CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date INTEGER NOT NULL);\
+        CREATE INDEX date_index on entries(date);";
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     let path = PathBuf::from(config.matches.value_of("db").unwrap());
