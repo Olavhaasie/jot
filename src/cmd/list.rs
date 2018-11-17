@@ -1,43 +1,56 @@
 use chrono::prelude::*;
+use chrono::ParseResult;
 use clap::ArgMatches;
-use sqlite::Connection;
+use sqlite::{Connection, Value};
 use std::error::Error;
 
-pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
-    let from = matches.value_of("from").map(|f| {
-        Local
-            .datetime_from_str(&format!("{} 00:00:00", f), "%d-%m-%Y %T")
-            .map(|d| d.timestamp())
-    });
-    let to = matches.value_of("to").map(|t| {
-        Local
-            .datetime_from_str(&format!("{} 00:00:00", t), "%d-%m-%Y %T")
-            .map(|d| d.timestamp())
-    });
+fn parse_date(s: &str) -> ParseResult<i64> {
+    Local
+        .datetime_from_str(&format!("{} 00:00:00", s), "%d-%m-%Y %T")
+        .map(|d| d.timestamp())
+}
 
-    let mut query = String::from("SELECT * FROM entries");
-    match (from, to) {
-        (Some(f), Some(t)) => query.push_str(&format!(" WHERE date > {} AND date < {}", f?, t?)),
-        (Some(f), None) => query.push_str(&format!(" WHERE date > {}", f?)),
-        (None, Some(t)) => query.push_str(&format!(" WHERE date < {}", t?)),
-        (None, None) => (),
+fn print_entry(row: &[Value]) {
+    let timestamp = row[1].as_integer().unwrap();
+    let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
+    println!(
+        "\x1b[1;35m# {}\x1b[0m\n{}",
+        date.with_timezone(&Local)
+            .format("%b %e %Y - %H:%M")
+            .to_string(),
+        String::from_utf8(row[0].as_binary().unwrap().to_vec()).unwrap(),
+    );
+}
+
+pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
+    let from = matches.value_of("from").map(|f| parse_date(f));
+    let to = matches.value_of("to").map(|t| parse_date(t));
+    let pattern = matches.value_of("pattern");
+
+    let mut query = String::from("SELECT entry, date FROM entries ");
+    if from.is_some() || to.is_some() || pattern.is_some() {
+        query.push_str("WHERE ");
     }
+    let mut first = true;
+    if let Some(f) = from {
+        query.push_str(&format!("date > {} ", f?));
+        first = false;
+    }
+    if let Some(t) = to {
+        if !first { query.push_str("AND "); }
+        query.push_str(&format!("date < {} ", t?));
+        first = false;
+    }
+    if let Some(p) = pattern {
+        if !first { query.push_str("AND "); }
+        query.push_str(&format!("entry LIKE '%{}%' ", p));
+    }
+
     let statement = connection.prepare(query)?;
     let mut cursor = statement.cursor();
 
-    while let Some(row) = cursor.next().unwrap() {
-        let timestamp = row[2].as_integer().unwrap();
-        let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
-        println!(
-            "\x1b[1;35m# {}\x1b[0m",
-            date.with_timezone(&Local)
-                .format("%b %e %Y - %H:%M")
-                .to_string()
-        );
-        println!(
-            "{}",
-            String::from_utf8(row[1].as_binary().unwrap().to_vec()).unwrap()
-        );
+    while let Some(row) = cursor.next()? {
+        print_entry(row);
     }
 
     Ok(())
