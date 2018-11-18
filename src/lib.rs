@@ -9,6 +9,7 @@ use config::Config;
 use sqlite::Connection;
 
 use std::error::Error;
+use std::io;
 use std::path::{Path, PathBuf};
 
 const CREATE_QUERY: &'static str =
@@ -23,9 +24,13 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
 }
 
 fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {
-    let file_exists = path.exists();
+    let path_exists = path.exists();
+    if path_exists && !path.is_file() {
+        return Err(io::Error::new(io::ErrorKind::Other, "given path is not a file").into());
+    }
+
     let connection = sqlite::open(path.to_str().unwrap())?;
-    if !file_exists {
+    if !path_exists {
         connection.execute(CREATE_QUERY)?;
     }
 
