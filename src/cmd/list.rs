@@ -17,11 +17,11 @@ fn print_entry(row: &[Value], color: bool) {
         "{}# {}{}\n{}",
         if color { "\x1b[1;35m" } else { "" },
         date.with_timezone(&Local)
-        .format("%b %e %Y - %H:%M")
-        .to_string(),
+            .format("%b %e %Y - %H:%M")
+            .to_string(),
         if color { "\x1b[0m" } else { "" },
         String::from_utf8(row[0].as_binary().unwrap().to_vec()).unwrap(),
-        );
+    );
 }
 
 pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
@@ -39,12 +39,16 @@ pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error
         first = false;
     }
     if let Some(t) = to {
-        if !first { query.push_str("AND "); }
+        if !first {
+            query.push_str("AND ");
+        }
         query.push_str(&format!("date < {} ", t?));
         first = false;
     }
     if let Some(p) = pattern {
-        if !first { query.push_str("AND "); }
+        if !first {
+            query.push_str("AND ");
+        }
         query.push_str(&format!("entry LIKE '%{}%' ", p));
     }
 
