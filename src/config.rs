@@ -14,7 +14,7 @@ pub struct Config<'a> {
 impl<'a> Config<'a> {
     pub fn new() -> Config<'a> {
         let args = &[
-            Arg::with_name("color")
+            Arg::with_name("nocolor")
                 .short("n")
                 .long("no-color")
                 .help("disables colored output"),

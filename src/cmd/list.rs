@@ -10,16 +10,18 @@ fn parse_date(s: &str) -> ParseResult<i64> {
         .map(|d| d.timestamp())
 }
 
-fn print_entry(row: &[Value]) {
+fn print_entry(row: &[Value], color: bool) {
     let timestamp = row[1].as_integer().unwrap();
     let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
     println!(
-        "\x1b[1;35m# {}\x1b[0m\n{}",
+        "{}# {}{}\n{}",
+        if color { "\x1b[1;35m" } else { "" },
         date.with_timezone(&Local)
-            .format("%b %e %Y - %H:%M")
-            .to_string(),
+        .format("%b %e %Y - %H:%M")
+        .to_string(),
+        if color { "\x1b[0m" } else { "" },
         String::from_utf8(row[0].as_binary().unwrap().to_vec()).unwrap(),
-    );
+        );
 }
 
 pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
@@ -50,7 +52,7 @@ pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error
     let mut cursor = statement.cursor();
 
     while let Some(row) = cursor.next()? {
-        print_entry(row);
+        print_entry(row, !matches.is_present("nocolor"));
     }
 
     Ok(())
