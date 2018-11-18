@@ -15,7 +15,6 @@ impl<'a> Config<'a> {
     pub fn new() -> Config<'a> {
         let args = &[
             Arg::with_name("nocolor")
-                .short("n")
                 .long("no-color")
                 .help("disables colored output"),
             Arg::with_name("db")
@@ -29,6 +28,12 @@ impl<'a> Config<'a> {
                 .short("l")
                 .long("list")
                 .help("lists all journal entries"),
+            Arg::with_name("count")
+                .short("n")
+                .long("entries")
+                .value_name("NUM")
+                .takes_value(true)
+                .help("limits the amount of latest entries"),
             Arg::with_name("from")
                 .short("f")
                 .long("from")
@@ -52,6 +57,7 @@ impl<'a> Config<'a> {
         let matches = app_from_crate!().args(args).get_matches();
 
         let list = matches.is_present("list")
+            || matches.is_present("count")
             || matches.is_present("from")
             || matches.is_present("to")
             || matches.is_present("pattern");

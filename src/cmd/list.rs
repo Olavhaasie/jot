@@ -52,6 +52,13 @@ pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error
         query.push_str(&format!("entry LIKE '%{}%' ", p));
     }
 
+    if let Some(n) = matches.value_of("count") {
+        query.push_str(&format!(
+            "LIMIT {} OFFSET (SELECT COUNT(*) FROM entries)-{0} ",
+            n
+        ));
+    }
+
     let statement = connection.prepare(query)?;
     let mut cursor = statement.cursor();
 
