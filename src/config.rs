@@ -57,7 +57,7 @@ impl<'a> Config<'a> {
                 .long("pattern")
                 .value_name("PATTERN")
                 .takes_value(true)
-                .help("sets pattern to look for inside journal entries"),
+                .help("case insensitive pattern to look for inside journal entries. '_' can be used as wildcard character and '%' for one ore more"),
         ];
 
         let matches = app_from_crate!().args(args).get_matches();
