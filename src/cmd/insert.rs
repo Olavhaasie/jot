@@ -8,13 +8,13 @@ use std::process;
 const INSERT_QUERY: &'static str =
     "INSERT INTO entries (entry, date) VALUES (?, strftime('%s','now'))";
 
-fn get_entry_from_editor() -> Result<String, Box<Error>> {
+fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
     let mut tmp = tempfile::Builder::new()
         .prefix("jot-entry-")
         .suffix(".txt")
         .tempfile()?;
 
-    let status = process::Command::new("vim")
+    let status = process::Command::new(editor)
         .arg(tmp.path().as_os_str())
         .status()?;
 
@@ -32,17 +32,23 @@ fn get_entry_from_editor() -> Result<String, Box<Error>> {
     }
 }
 
-pub fn insert(connection: Connection, _matches: ArgMatches) -> Result<(), Box<Error>> {
+fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
+    if let Some(editor) = matches.value_of("editor") {
+        get_entry_from_editor(editor)
+    } else {
+        eprintln!("Start typing:");
+        let mut input = String::new();
+        stdin().read_to_string(&mut input)?;
+        Ok(input)
+    }
+}
+
+pub fn insert(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
     let mut statement = connection.prepare(INSERT_QUERY)?;
 
-    let entry = get_entry_from_editor()?;
+    let entry = get_entry(&matches)?;
 
-    eprintln!("Start typing:");
-    let mut input = String::new();
-    stdin().read_to_string(&mut input)?;
-    let input = input.into_bytes();
-
-    statement.bind(1, &input[..])?;
+    statement.bind(1, entry.as_bytes())?;
 
     statement.next()?;
     Ok(())

@@ -24,6 +24,12 @@ impl<'a> Config<'a> {
                 .takes_value(true)
                 .default_value(DEFAULT_FILENAME)
                 .help("journal database to read from"),
+            Arg::with_name("editor")
+                .short("e")
+                .long("editor")
+                .value_name("CMD")
+                .takes_value(true)
+                .help("editor to use when inserting a new journal entry"),
             Arg::with_name("list")
                 .short("l")
                 .long("list")
