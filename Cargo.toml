@@ -15,4 +15,5 @@ license = "MIT"
 clap = "2.32"
 chrono = "0.4"
 sqlite = "0.24"
+tempfile = "3"
 
