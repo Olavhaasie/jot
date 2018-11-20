@@ -1,3 +1,4 @@
+extern crate atty;
 extern crate chrono;
 extern crate clap;
 extern crate sqlite;

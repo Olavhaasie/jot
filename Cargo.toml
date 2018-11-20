@@ -12,6 +12,7 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
+atty = "0.2"
 clap = "2.32"
 chrono = "0.4"
 sqlite = "0.24"

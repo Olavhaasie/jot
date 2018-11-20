@@ -36,7 +36,10 @@ fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
     if let Some(editor) = matches.value_of("editor") {
         get_entry_from_editor(editor)
     } else {
-        eprintln!("Start typing:");
+        if atty::is(atty::Stream::Stdin) {
+            println!("Press ^D to save and ^C to abort.");
+            println!("Start typing:");
+        }
         let mut input = String::new();
         stdin().read_to_string(&mut input)?;
         Ok(input)
@@ -44,12 +47,13 @@ fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
 }
 
 pub fn insert(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
-    let mut statement = connection.prepare(INSERT_QUERY)?;
-
     let entry = get_entry(&matches)?;
 
-    statement.bind(1, entry.as_bytes())?;
+    if !entry.is_empty() {
+        let mut statement = connection.prepare(INSERT_QUERY)?;
+        statement.bind(1, entry.as_bytes())?;
 
-    statement.next()?;
+        statement.next()?;
+    }
     Ok(())
 }
