@@ -1,7 +1,8 @@
 use super::cmd::Command;
 
 use clap::{
-    app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, ArgMatches,
+    app_from_crate, arg_enum, crate_authors, crate_description, crate_name, crate_version, Arg,
+    ArgMatches, _clap_count_exprs,
 };
 
 const DEFAULT_FILENAME: &'static str = "journal.db";
@@ -9,6 +10,14 @@ const DEFAULT_FILENAME: &'static str = "journal.db";
 pub struct Config<'a> {
     pub command: Command,
     pub matches: ArgMatches<'a>,
+}
+
+arg_enum!{
+    #[derive(PartialEq, Debug)]
+    pub enum Order {
+        Asc,
+        Desc,
+    }
 }
 
 impl<'a> Config<'a> {
@@ -58,6 +67,15 @@ impl<'a> Config<'a> {
                 .value_name("PATTERN")
                 .takes_value(true)
                 .help("case insensitive pattern to look for inside journal entries. '_' can be used as wildcard character and '%' for one ore more"),
+            Arg::with_name("sort")
+                .short("s")
+                .long("sorted")
+                .value_name("ORDER")
+                .takes_value(true)
+                .case_insensitive(true)
+                .possible_values(&Order::variants())
+                .default_value("ASC")
+                .help("sort by date in ascending or descending order"),
         ];
 
         let matches = app_from_crate!().args(args).get_matches();

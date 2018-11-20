@@ -1,8 +1,10 @@
 use chrono::prelude::*;
 use chrono::ParseResult;
-use clap::ArgMatches;
+use clap::{value_t, ArgMatches};
 use sqlite::{Connection, Value};
 use std::error::Error;
+
+use super::super::config::Order;
 
 fn parse_date(s: &str) -> ParseResult<i64> {
     Local
@@ -58,6 +60,12 @@ pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error
             n
         ));
     }
+
+    query.push_str("ORDER BY id ");
+    query.push_str(match value_t!(matches, "sort", Order).unwrap() {
+        Order::Asc => "ASC ",
+        Order::Desc => "DESC ",
+    });
 
     let statement = connection.prepare(query)?;
     let mut cursor = statement.cursor();
