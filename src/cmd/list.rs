@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use chrono::ParseResult;
-use clap::{value_t, ArgMatches};
+use clap::ArgMatches;
 use sqlite::{Connection, Value};
 use std::error::Error;
 

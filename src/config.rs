@@ -1,9 +1,6 @@
 use super::cmd::Command;
 
-use clap::{
-    app_from_crate, arg_enum, crate_authors, crate_description, crate_name, crate_version, Arg,
-    ArgMatches, _clap_count_exprs,
-};
+use clap::{Arg, ArgMatches};
 
 const DEFAULT_FILENAME: &'static str = "journal.db";
 
