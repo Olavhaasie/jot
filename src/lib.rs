@@ -17,7 +17,7 @@ use std::path::{Path, PathBuf};
 
 const CREATE_QUERY: &'static str =
     "BEGIN;\
-        CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date INTEGER NOT NULL);\
+        CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date TEXT NOT NULL);\
         CREATE INDEX date_index on entries(date);\
         COMMIT;";
 

@@ -14,15 +14,12 @@ fn parse_date(s: &str) -> ParseResult<i64> {
 
 fn print_entry(row: Row, color: bool) {
     let entry: String = row.get(0);
-    let timestamp = row.get(1);
-    let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
+    let date: DateTime<Local> = row.get(1);
 
     println!(
         "{}# {}{}\n{}",
         if color { "\x1b[1;35m" } else { "" },
-        date.with_timezone(&Local)
-            .format("%b %e %Y - %H:%M")
-            .to_string(),
+        date.format("%b %e %Y - %H:%M").to_string(),
         if color { "\x1b[0m" } else { "" },
         entry,
     );
