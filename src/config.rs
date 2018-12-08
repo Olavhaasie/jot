@@ -2,7 +2,7 @@ use super::cmd::Command;
 
 use clap::{Arg, ArgMatches};
 
-const DEFAULT_FILENAME: &'static str = "journal.db";
+const DEFAULT_FILENAME: &'static str = "journal.sqlite";
 
 pub struct Config<'a> {
     pub command: Command,

@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use chrono::ParseResult;
 use clap::ArgMatches;
-use sqlite::{Connection, Value};
+use rusqlite::{Connection, Row, NO_PARAMS};
 use std::error::Error;
 
 use super::super::config::Order;
@@ -12,9 +12,11 @@ fn parse_date(s: &str) -> ParseResult<i64> {
         .map(|d| d.timestamp())
 }
 
-fn print_entry(row: &[Value], color: bool) {
-    let timestamp = row[1].as_integer().unwrap();
+fn print_entry(row: Row, color: bool) {
+    let entry: String = row.get(0);
+    let timestamp = row.get(1);
     let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
+
     println!(
         "{}# {}{}\n{}",
         if color { "\x1b[1;35m" } else { "" },
@@ -22,7 +24,7 @@ fn print_entry(row: &[Value], color: bool) {
             .format("%b %e %Y - %H:%M")
             .to_string(),
         if color { "\x1b[0m" } else { "" },
-        String::from_utf8(row[0].as_binary().unwrap().to_vec()).unwrap(),
+        entry,
     );
 }
 
@@ -54,23 +56,25 @@ pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error
         query.push_str(&format!("entry LIKE '%{}%' ", p));
     }
 
-    if let Some(n) = matches.value_of("count") {
-        query.push_str(&format!(
-            "LIMIT {} OFFSET (SELECT COUNT(*) FROM entries)-{0} ",
-            n
-        ));
-    }
-
     query.push_str("ORDER BY id ");
     query.push_str(match value_t!(matches, "sort", Order).unwrap() {
         Order::Asc => "ASC ",
         Order::Desc => "DESC ",
     });
 
-    let statement = connection.prepare(query)?;
-    let mut cursor = statement.cursor();
+    if let Some(n) = matches.value_of("count") {
+        query.push_str(&format!(
+            "LIMIT {} OFFSET (SELECT COUNT(*) FROM entries) - {0} ",
+            n
+        ));
+    }
 
-    while let Some(row) = cursor.next()? {
+    println!("{}", query);
+    let mut statement = connection.prepare(&query)?;
+    let mut rows = statement.query(NO_PARAMS)?;
+
+    while let Some(result_row) = rows.next() {
+        let row = result_row?;
         print_entry(row, !matches.is_present("nocolor"));
     }
 

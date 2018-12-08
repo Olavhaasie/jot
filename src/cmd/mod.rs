@@ -5,7 +5,7 @@ use self::insert::insert;
 use self::list::list;
 
 use clap::ArgMatches;
-use sqlite::Connection;
+use rusqlite::Connection;
 use std::error::Error;
 
 pub enum Command {

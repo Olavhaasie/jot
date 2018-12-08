@@ -1,5 +1,5 @@
 use clap::ArgMatches;
-use sqlite::Connection;
+use rusqlite::Connection;
 use std::error::Error;
 use std::io;
 use std::io::{stdin, Read};
@@ -51,9 +51,7 @@ pub fn insert(connection: Connection, matches: ArgMatches) -> Result<(), Box<Err
 
     if !entry.is_empty() {
         let mut statement = connection.prepare(INSERT_QUERY)?;
-        statement.bind(1, entry.as_bytes())?;
-
-        statement.next()?;
+        statement.execute(&[entry])?;
     }
     Ok(())
 }

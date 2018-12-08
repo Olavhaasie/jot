@@ -2,22 +2,24 @@ extern crate atty;
 extern crate chrono;
 #[macro_use]
 extern crate clap;
-extern crate sqlite;
+extern crate rusqlite;
 extern crate tempfile;
 
 mod cmd;
 pub mod config;
 
 use config::Config;
-use sqlite::Connection;
+use rusqlite::Connection;
 
 use std::error::Error;
 use std::io;
 use std::path::{Path, PathBuf};
 
 const CREATE_QUERY: &'static str =
-    "CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date INTEGER NOT NULL);\
-        CREATE INDEX date_index on entries(date);";
+    "BEGIN;\
+        CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date INTEGER NOT NULL);\
+        CREATE INDEX date_index on entries(date);\
+        COMMIT;";
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
     let path = PathBuf::from(config.matches.value_of("db").unwrap());
@@ -32,9 +34,9 @@ fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {
         return Err(io::Error::new(io::ErrorKind::Other, "given path is not a file").into());
     }
 
-    let connection = sqlite::open(path.to_str().unwrap())?;
+    let connection = Connection::open(path)?;
     if !path_exists {
-        connection.execute(CREATE_QUERY)?;
+        connection.execute_batch(CREATE_QUERY)?;
     }
 
     Ok(connection)
