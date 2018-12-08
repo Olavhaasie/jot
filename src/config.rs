@@ -81,7 +81,8 @@ impl<'a> Config<'a> {
             || matches.is_present("count")
             || matches.is_present("from")
             || matches.is_present("to")
-            || matches.is_present("pattern");
+            || matches.is_present("pattern")
+            || matches.is_present("sort");
         Config {
             command: if list { Command::List } else { Command::Insert },
             matches,
