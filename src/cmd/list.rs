@@ -12,7 +12,7 @@ fn parse_date(s: &str) -> ParseResult<i64> {
         .map(|d| d.timestamp())
 }
 
-fn print_entry(row: Row, color: bool) {
+fn print_entry(row: &Row, color: bool) {
     let entry: String = row.get(0);
     let date: DateTime<Local> = row.get(1);
 
@@ -25,7 +25,7 @@ fn print_entry(row: Row, color: bool) {
     );
 }
 
-pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
+pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
     let from = matches.value_of("from").map(|f| parse_date(f));
     let to = matches.value_of("to").map(|t| parse_date(t));
     let pattern = matches.value_of("pattern");
@@ -67,12 +67,12 @@ pub fn list(connection: Connection, matches: ArgMatches) -> Result<(), Box<Error
     }
 
     println!("{}", query);
-    let mut statement = connection.prepare(&query)?;
+    let mut statement = conn.prepare(&query)?;
     let mut rows = statement.query(NO_PARAMS)?;
 
     while let Some(result_row) = rows.next() {
         let row = result_row?;
-        print_entry(row, !matches.is_present("nocolor"));
+        print_entry(&row, !matches.is_present("nocolor"));
     }
 
     Ok(())

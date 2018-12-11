@@ -14,10 +14,10 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn run(&self, connection: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
+    pub fn run(&self, conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
         match self {
-            Command::Insert => insert(connection, matches),
-            Command::List => list(connection, matches),
+            Command::Insert => insert(conn, matches),
+            Command::List => list(conn, matches),
         }
     }
 }

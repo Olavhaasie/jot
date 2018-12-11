@@ -2,7 +2,7 @@ use super::cmd::Command;
 
 use clap::{Arg, ArgMatches};
 
-const DEFAULT_FILENAME: &'static str = "journal.sqlite";
+const DEFAULT_FILENAME: &str = "journal.sqlite";
 
 pub struct Config<'a> {
     pub command: Command,
@@ -18,7 +18,7 @@ arg_enum!{
 }
 
 impl<'a> Config<'a> {
-    pub fn new() -> Config<'a> {
+    pub fn default() -> Config<'a> {
         let args = &[
             Arg::with_name("nocolor")
                 .long("no-color")

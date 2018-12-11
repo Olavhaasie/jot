@@ -15,17 +15,17 @@ use std::error::Error;
 use std::io;
 use std::path::{Path, PathBuf};
 
-const CREATE_QUERY: &'static str =
+const CREATE_QUERY: &str =
     "BEGIN;\
         CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date TEXT NOT NULL);\
         CREATE INDEX date_index on entries(date);\
         COMMIT;";
 
-pub fn run(config: Config) -> Result<(), Box<Error>> {
+pub fn run(config: &Config) -> Result<(), Box<Error>> {
     let path = PathBuf::from(config.matches.value_of("db").unwrap());
     let connection = get_connection(&path)?;
 
-    config.command.run(connection, config.matches)
+    config.command.run(&connection, &config.matches)
 }
 
 fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {

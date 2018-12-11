@@ -7,7 +7,7 @@ use std::io;
 use std::io::{stdin, Read};
 use std::process;
 
-const INSERT_QUERY: &'static str = "INSERT INTO entries (entry, date) VALUES ((:entry), (:date))";
+const INSERT_QUERY: &str = "INSERT INTO entries (entry, date) VALUES ((:entry), (:date))";
 
 fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
     let mut tmp = tempfile::Builder::new()
@@ -47,7 +47,7 @@ fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
     }
 }
 
-pub fn insert(conn: Connection, matches: ArgMatches) -> Result<(), Box<Error>> {
+pub fn insert(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
     let entry = get_entry(&matches)?;
 
     if !entry.is_empty() {
