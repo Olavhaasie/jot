@@ -70,7 +70,8 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
 
     while let Some(result_row) = rows.next() {
         let row = result_row?;
-        print_entry(&row, !matches.is_present("nocolor"));
+        let color = atty::is(atty::Stream::Stdout) && !matches.is_present("nocolor");
+        print_entry(&row, color);
     }
 
     Ok(())

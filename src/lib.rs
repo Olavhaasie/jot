@@ -7,9 +7,11 @@ pub mod config;
 use self::config::Config;
 use rusqlite::Connection;
 
-use std::error::Error;
-use std::io;
-use std::path::{Path, PathBuf};
+use std::{
+    error::Error,
+    io,
+    path::{Path, PathBuf},
+};
 
 const CREATE_QUERY: &str =
     "BEGIN;\

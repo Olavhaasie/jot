@@ -1,11 +1,7 @@
 use chrono::Local;
 use clap::ArgMatches;
-use rusqlite::types::ToSql;
-use rusqlite::Connection;
-use std::error::Error;
-use std::io;
-use std::io::{stdin, Read};
-use std::process;
+use rusqlite::{types::ToSql, Connection};
+use std::{error::Error, io, io::Read, process};
 
 const INSERT_QUERY: &str = "INSERT INTO entries (entry, date) VALUES ((:entry), (:date))";
 
@@ -43,7 +39,7 @@ fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
             println!("Start typing:");
         }
         let mut input = String::new();
-        stdin().read_to_string(&mut input)?;
+        io::stdin().read_to_string(&mut input)?;
         Ok(input)
     }
 }
