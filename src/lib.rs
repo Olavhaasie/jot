@@ -1,14 +1,10 @@
-extern crate atty;
-extern crate chrono;
 #[macro_use]
 extern crate clap;
-extern crate rusqlite;
-extern crate tempfile;
 
 mod cmd;
 pub mod config;
 
-use config::Config;
+use self::config::Config;
 use rusqlite::Connection;
 
 use std::error::Error;

@@ -1,5 +1,3 @@
-extern crate jot;
-
 use jot::config::Config;
 use std::error::Error;
 

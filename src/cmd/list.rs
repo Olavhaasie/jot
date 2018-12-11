@@ -1,10 +1,9 @@
-use chrono::prelude::*;
-use chrono::ParseResult;
+use chrono::{prelude::*, ParseResult};
 use clap::ArgMatches;
 use rusqlite::{Connection, Row, NO_PARAMS};
 use std::error::Error;
 
-use super::super::config::Order;
+use crate::config::Order;
 
 fn parse_date(s: &str) -> ParseResult<i64> {
     Local

@@ -1,5 +1,4 @@
-use super::cmd::Command;
-
+use crate::cmd::Command;
 use clap::{Arg, ArgGroup, ArgMatches};
 
 const DEFAULT_FILENAME: &str = "journal.sqlite";
