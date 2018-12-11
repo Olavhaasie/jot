@@ -29,7 +29,8 @@ fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
         Err(io::Error::new(
             io::ErrorKind::Other,
             "inserting entry aborted (editor exited with error code)",
-        ).into())
+        )
+        .into())
     }
 }
 

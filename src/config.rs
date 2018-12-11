@@ -1,6 +1,6 @@
 use super::cmd::Command;
 
-use clap::{Arg, ArgMatches};
+use clap::{Arg, ArgGroup, ArgMatches};
 
 const DEFAULT_FILENAME: &str = "journal.sqlite";
 
@@ -9,7 +9,7 @@ pub struct Config<'a> {
     pub matches: ArgMatches<'a>,
 }
 
-arg_enum!{
+arg_enum! {
     #[derive(PartialEq, Debug)]
     pub enum Order {
         Asc,
@@ -75,14 +75,12 @@ impl<'a> Config<'a> {
                 .help("sort by date in ascending or descending order"),
         ];
 
-        let matches = app_from_crate!().args(args).get_matches();
+        let list_group =
+            ArgGroup::with_name("list-mode").args(&["list", "count", "from", "to", "pattern"]);
 
-        let list = matches.is_present("list")
-            || matches.is_present("count")
-            || matches.is_present("from")
-            || matches.is_present("to")
-            || matches.is_present("pattern")
-            || matches.is_present("sort");
+        let matches = app_from_crate!().args(args).group(list_group).get_matches();
+
+        let list = matches.is_present("list-mode");
         Config {
             command: if list { Command::List } else { Command::Insert },
             matches,

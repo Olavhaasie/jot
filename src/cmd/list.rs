@@ -66,7 +66,6 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
         ));
     }
 
-    println!("{}", query);
     let mut statement = conn.prepare(&query)?;
     let mut rows = statement.query(NO_PARAMS)?;
 
