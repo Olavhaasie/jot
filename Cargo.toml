@@ -3,6 +3,7 @@ name = "jot"
 version = "0.3.2"
 authors = ["Olav de Haas <o.n.dehaas@student.tudelft.nl>"]
 description = "terminal based digital personal journal📔"
+edition = "2018"
 
 keywords = [ "cli", "terminal", "journal", "notebook", "personal" ]
 categories = [ "command-line-utilities" ]
