@@ -12,6 +12,13 @@ repository = "https://github.com/Olavhaasie/jot"
 readme = "README.md"
 license = "MIT"
 
+[profile.release]
+panic = "abort"
+lto = true
+codegen-units = 1
+incremental = false
+opt-level = "z"
+
 [dependencies]
 atty = "0.2"
 clap = "2.32"
