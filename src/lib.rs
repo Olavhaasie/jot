@@ -13,6 +13,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+const DEFAULT_FILENAME: &str = "journal.sqlite";
+
 const CREATE_QUERY: &str =
     "BEGIN;\
         CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date TEXT NOT NULL);\
@@ -20,7 +22,12 @@ const CREATE_QUERY: &str =
         COMMIT;";
 
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    let path = PathBuf::from(config.matches.value_of("db").unwrap());
+    let path = config
+        .matches
+        .value_of("db")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| dirs::home_dir().unwrap().join(DEFAULT_FILENAME));
+
     let connection = get_connection(&path)?;
 
     config.command.run(&connection, &config.matches)

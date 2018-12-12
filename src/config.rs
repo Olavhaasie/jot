@@ -1,8 +1,6 @@
 use crate::cmd::Command;
 use clap::{Arg, ArgGroup, ArgMatches};
 
-const DEFAULT_FILENAME: &str = "journal.sqlite";
-
 pub struct Config<'a> {
     pub command: Command,
     pub matches: ArgMatches<'a>,
@@ -27,7 +25,6 @@ impl<'a> Config<'a> {
                 .long("database")
                 .value_name("FILE")
                 .takes_value(true)
-                .default_value(DEFAULT_FILENAME)
                 .help("journal database to read from"),
             Arg::with_name("editor")
                 .short("e")

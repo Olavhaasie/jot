@@ -17,6 +17,7 @@ atty = "0.2"
 clap = "2.32"
 chrono = "0.4"
 tempfile = "3"
+dirs = "1.0"
 
 [dependencies.rusqlite]
 version = "0.15"
