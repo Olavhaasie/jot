@@ -15,11 +15,10 @@ use std::{
 
 const DEFAULT_FILENAME: &str = "journal.sqlite";
 
-const CREATE_QUERY: &str =
-    "BEGIN;\
-        CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date TEXT NOT NULL);\
-        CREATE INDEX date_index on entries(date);\
-        COMMIT;";
+const CREATE_QUERY: &str = "BEGIN;
+    CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date TEXT NOT NULL);
+    CREATE INDEX date_index on entries(date);
+    COMMIT;";
 
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
     let path = config
@@ -28,12 +27,22 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
         .map(PathBuf::from)
         .unwrap_or_else(|| dirs::home_dir().unwrap().join(DEFAULT_FILENAME));
 
-    let connection = get_connection(&path)?;
+    let (connection, created) = get_connection(&path)?;
+
+    if created && atty::is(atty::Stream::Stdout) {
+        let color = !config.matches.is_present("nocolor");
+        println!(
+            "{}Created new journal database {:?}{}",
+            if color { "\x1b[1;33m" } else { "" },
+            path,
+            if color { "\x1b[0m" } else { "" },
+        );
+    }
 
     config.command.run(&connection, &config.matches)
 }
 
-fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {
+fn get_connection(path: &Path) -> Result<(Connection, bool), Box<Error>> {
     let path_exists = path.exists();
     if path_exists && !path.is_file() {
         return Err(io::Error::new(io::ErrorKind::Other, "given path is not a file").into());
@@ -44,5 +53,5 @@ fn get_connection(path: &Path) -> Result<Connection, Box<Error>> {
         connection.execute_batch(CREATE_QUERY)?;
     }
 
-    Ok(connection)
+    Ok((connection, !path_exists))
 }
