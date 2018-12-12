@@ -16,7 +16,7 @@ use std::{
 const DEFAULT_FILENAME: &str = "journal.sqlite";
 
 const CREATE_QUERY: &str = "BEGIN;
-    CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date TEXT NOT NULL);
+    CREATE TABLE entries (id INTEGER PRIMARY KEY AUTOINCREMENT, entry TEXT NOT NULL, date INTEGER NOT NULL);
     CREATE INDEX date_index on entries(date);
     COMMIT;";
 

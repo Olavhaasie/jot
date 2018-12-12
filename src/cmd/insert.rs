@@ -1,9 +1,8 @@
-use chrono::Local;
 use clap::ArgMatches;
-use rusqlite::{types::ToSql, Connection};
+use rusqlite::Connection;
 use std::{error::Error, io, io::Read, process};
 
-const INSERT_QUERY: &str = "INSERT INTO entries (entry, date) VALUES ((:entry), (:date))";
+const INSERT_QUERY: &str = "INSERT INTO entries (entry, date) VALUES (?, strftime('%s','now'))";
 
 fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
     let mut tmp = tempfile::Builder::new()
@@ -48,7 +47,8 @@ pub fn insert(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>>
     let entry = get_entry(&matches)?;
 
     if !entry.is_empty() {
-        conn.execute(INSERT_QUERY, &[&entry as &ToSql, &Local::now()])?;
+        let mut statement = conn.prepare(INSERT_QUERY)?;
+        statement.execute(&[entry])?;
     }
     Ok(())
 }
