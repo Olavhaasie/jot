@@ -198,7 +198,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "jot"
-version = "0.3.4"
+version = "0.4.0"
 dependencies = [
  "assert_cmd 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
