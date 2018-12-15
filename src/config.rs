@@ -1,5 +1,5 @@
 use crate::cmd::Command;
-use clap::{Arg, ArgGroup, ArgMatches};
+use clap::{AppSettings, Arg, ArgGroup, ArgMatches};
 
 pub struct Config<'a> {
     pub command: Command,
@@ -74,7 +74,11 @@ impl<'a> Config<'a> {
         let list_group =
             ArgGroup::with_name("list-mode").args(&["list", "count", "from", "to", "pattern"]);
 
-        let matches = app_from_crate!().args(args).group(list_group).get_matches();
+        let matches = app_from_crate!()
+            .setting(AppSettings::ColoredHelp)
+            .args(args)
+            .group(list_group)
+            .get_matches();
 
         let list = matches.is_present("list-mode");
         Config {
