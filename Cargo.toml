@@ -1,6 +1,6 @@
 [package]
 name = "jot"
-version = "0.3.4"
+version = "0.4.0"
 authors = ["Olav de Haas <o.n.dehaas@student.tudelft.nl>"]
 description = "terminal based digital personal journal📔"
 edition = "2018"
