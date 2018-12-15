@@ -3,8 +3,6 @@ use clap::ArgMatches;
 use rusqlite::{Connection, Row, NO_PARAMS};
 use std::error::Error;
 
-use crate::config::Order;
-
 fn parse_date(s: &str) -> ParseResult<i64> {
     Local
         .datetime_from_str(&format!("{} 00:00:00", s), "%d-%m-%Y %T")
@@ -55,11 +53,9 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
         query.push_str(&format!("entry LIKE '%{}%' ", p));
     }
 
-    query.push_str("ORDER BY id ");
-    query.push_str(match value_t!(matches, "sort", Order).unwrap() {
-        Order::Asc => "ASC ",
-        Order::Desc => "DESC ",
-    });
+    if matches.is_present("reverse") {
+        query.push_str("ORDER BY id DESC ");
+    }
 
     if let Some(n) = matches.value_of("count") {
         query.push_str(&format!(

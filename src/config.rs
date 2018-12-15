@@ -6,14 +6,6 @@ pub struct Config<'a> {
     pub matches: ArgMatches<'a>,
 }
 
-arg_enum! {
-    #[derive(PartialEq, Debug)]
-    pub enum Order {
-        Asc,
-        Desc,
-    }
-}
-
 impl<'a> Config<'a> {
     pub fn default() -> Config<'a> {
         let args = &[
@@ -60,19 +52,14 @@ impl<'a> Config<'a> {
                 .value_name("PATTERN")
                 .takes_value(true)
                 .help("case insensitive pattern to look for inside journal entries. '_' can be used as wildcard character and '%' for one ore more"),
-            Arg::with_name("sort")
-                .short("s")
-                .long("sorted")
-                .value_name("ORDER")
-                .takes_value(true)
-                .case_insensitive(true)
-                .possible_values(&Order::variants())
-                .default_value("ASC")
-                .help("sort by date in ascending or descending order"),
+            Arg::with_name("reverse")
+                .short("r")
+                .long("reverse")
+                .help("reverse the date output order"),
         ];
 
         let list_group = ArgGroup::with_name("list-mode")
-            .args(&["list", "count", "from", "to", "pattern"])
+            .args(&["list", "count", "from", "to", "pattern", "reverse"])
             .required(false)
             .multiple(true);
 
