@@ -71,8 +71,10 @@ impl<'a> Config<'a> {
                 .help("sort by date in ascending or descending order"),
         ];
 
-        let list_group =
-            ArgGroup::with_name("list-mode").args(&["list", "count", "from", "to", "pattern"]);
+        let list_group = ArgGroup::with_name("list-mode")
+            .args(&["list", "count", "from", "to", "pattern"])
+            .required(false)
+            .multiple(true);
 
         let matches = app_from_crate!()
             .setting(AppSettings::ColoredHelp)
