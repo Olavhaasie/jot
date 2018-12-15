@@ -23,6 +23,10 @@ To test run it
 
     $ cargo run
 
+Or actually test it using `[assert_cmd](https://github.com/assert-rs/assert_cmd)`
+
+    $ cargo test
+
 To build for release
 
     $ cargo build --release
@@ -74,6 +78,8 @@ $ jot --from 20-11-2018
 # lists all entries from (inclusive) 20 November 2018...
 $ jot -n 10 --to 25-10-2018
 # lists the 10 latest entries until 25 October 2018...
+$ jot -r
+# lists all entries in reverse order...
 ```
 The `-l` or `--list` argument is implied when using any of the filters.
 
