@@ -51,7 +51,10 @@ impl<'a> Config<'a> {
                 .long("pattern")
                 .value_name("PATTERN")
                 .takes_value(true)
-                .help("case insensitive pattern to look for inside journal entries. '_' can be used as wildcard character and '%' for one ore more"),
+                .help(
+                    "case insensitive pattern to look for inside journal entries. \
+                     '_' can be used as wildcard character and '%' for one ore more",
+                ),
             Arg::with_name("reverse")
                 .short("r")
                 .long("reverse")
@@ -65,6 +68,7 @@ impl<'a> Config<'a> {
 
         let matches = app_from_crate!()
             .setting(AppSettings::ColoredHelp)
+            .max_term_width(100)
             .args(args)
             .group(list_group)
             .get_matches();
