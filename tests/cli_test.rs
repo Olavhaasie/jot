@@ -7,4 +7,3 @@ fn help_and_quit() {
     cmd.args(&["--help"]);
     cmd.assert().success();
 }
-

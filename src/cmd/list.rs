@@ -9,20 +9,25 @@ fn parse_date(s: &str) -> ParseResult<i64> {
         .map(|d| d.timestamp())
 }
 
-fn print_entry(row: &Row, color: bool) {
+fn print_entry(row: &Row, color: bool, json: bool) {
     let entry: String = row.get(0);
     let timestamp = row.get(1);
-    let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc);
+    let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc)
+        .with_timezone(&Local)
+        .format("%b %e %Y - %H:%M")
+        .to_string();
 
-    println!(
-        "{}# {}{}\n{}",
-        if color { "\x1b[1;35m" } else { "" },
-        date.with_timezone(&Local)
-            .format("%b %e %Y - %H:%M")
-            .to_string(),
-        if color { "\x1b[0m" } else { "" },
-        entry,
-    );
+    if json {
+        println!("{{\"entry\":{:?},\"timestamp\":{}}}", entry, timestamp);
+    } else {
+        println!(
+            "{}# {}{}\n{}",
+            if color { "\x1b[1;35m" } else { "" },
+            date,
+            if color { "\x1b[0m" } else { "" },
+            entry,
+        );
+    }
 }
 
 pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
@@ -70,7 +75,7 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
     while let Some(result_row) = rows.next() {
         let row = result_row?;
         let color = atty::is(atty::Stream::Stdout) && !matches.is_present("nocolor");
-        print_entry(&row, color);
+        print_entry(&row, color, matches.is_present("json"));
     }
 
     Ok(())

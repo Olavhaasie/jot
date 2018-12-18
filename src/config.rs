@@ -28,6 +28,9 @@ impl<'a> Config<'a> {
                 .short("l")
                 .long("list")
                 .help("lists all journal entries"),
+            Arg::with_name("json")
+                .long("json")
+                .help("outputs in json format"),
             Arg::with_name("count")
                 .short("n")
                 .long("entries")
@@ -62,7 +65,7 @@ impl<'a> Config<'a> {
         ];
 
         let list_group = ArgGroup::with_name("list-mode")
-            .args(&["list", "count", "from", "to", "pattern", "reverse"])
+            .args(&["list", "json", "count", "from", "to", "pattern", "reverse"])
             .required(false)
             .multiple(true);
 
