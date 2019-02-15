@@ -23,7 +23,7 @@ To test run it
 
     $ cargo run
 
-Or actually test it using `[assert_cmd](https://github.com/assert-rs/assert_cmd)`
+Or actually test it using [`assert_cmd`](https://github.com/assert-rs/assert_cmd)
 
     $ cargo test
 
