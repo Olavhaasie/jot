@@ -7,6 +7,7 @@
   \ \____/\ \____/ \ \__\
    \/___/  \/___/   \/__/
 ```
+[![Build Status](https://travis-ci.com/Olavhaasie/jot.svg?token=fsRyqssX3U5buk3mYRos&branch=master)](https://travis-ci.com/Olavhaasie/jot)
 
 A terminal based digital personal journal 📔
 
