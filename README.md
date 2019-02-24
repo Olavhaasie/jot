@@ -68,7 +68,11 @@ $ jot <<< "내 첫 번째 항목"
 Besides from creating new entries, jot can also list your current entries.
 You can list all your entries.
 ```bash
- $ jot -l
+$ jot -l
+```
+Or if you would like to export in JSON
+```bash
+$ jot --json
 ```
 However, this is not very useful when you are looking for a specific entry.
 That's why you can filter on content, dates and number of entries.
