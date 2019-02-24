@@ -56,7 +56,7 @@ impl<'a> Config<'a> {
                 .takes_value(true)
                 .help(
                     "case insensitive pattern to look for inside journal entries. \
-                     '_' can be used as wildcard character and '%' for one ore more",
+                     '_' can be used as wildcard character and '%' for one or more",
                 ),
             Arg::with_name("reverse")
                 .short("r")
