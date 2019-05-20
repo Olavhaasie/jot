@@ -5,6 +5,7 @@ mod cmd;
 pub mod config;
 
 use self::config::Config;
+use ansi_term::Colour::Yellow;
 use rusqlite::Connection;
 
 use std::{
@@ -31,12 +32,12 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
 
     if created && atty::is(atty::Stream::Stdout) {
         let color = !config.matches.is_present("nocolor");
-        println!(
-            "{}Created new journal database {:?}{}",
-            if color { "\x1b[1;33m" } else { "" },
-            path,
-            if color { "\x1b[0m" } else { "" },
-        );
+        let msg = format!("Created new journal database {:?}", path);
+        if color {
+            println!("{}", Yellow.bold().paint(msg));
+        } else {
+            println!("{}", msg);
+        }
     }
 
     config.command.run(&connection, &config.matches)
