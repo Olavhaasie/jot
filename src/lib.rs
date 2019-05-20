@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate clap;
-
 mod cmd;
 pub mod config;
 
@@ -8,11 +5,7 @@ use self::config::Config;
 use ansi_term::Colour::Yellow;
 use rusqlite::Connection;
 
-use std::{
-    error::Error,
-    io,
-    path::{Path, PathBuf},
-};
+use std::{error::Error, io, path::Path};
 
 const DEFAULT_FILENAME: &str = "journal.sqlite";
 
@@ -22,16 +15,16 @@ const CREATE_QUERY: &str = "BEGIN;
     COMMIT;";
 
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    let path = config
-        .matches
-        .value_of("db")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| dirs::home_dir().unwrap().join(DEFAULT_FILENAME));
+    let default_path = dirs::home_dir().unwrap().join(DEFAULT_FILENAME);
+    let path = match &config.database {
+        Some(path) => path,
+        None => &default_path,
+    };
 
-    let (connection, created) = get_connection(&path)?;
+    let (connection, created) = get_connection(path)?;
 
     if created && atty::is(atty::Stream::Stdout) {
-        let color = !config.matches.is_present("nocolor");
+        let color = !config.no_color;
         let msg = format!("Created new journal database {:?}", path);
         if color {
             println!("{}", Yellow.bold().paint(msg));
@@ -40,7 +33,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
         }
     }
 
-    config.command.run(&connection, &config.matches)
+    config.command().run(&connection, &config)
 }
 
 fn get_connection(path: &Path) -> Result<(Connection, bool), Box<Error>> {

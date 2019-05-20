@@ -1,5 +1,6 @@
 use jot::config::Config;
 use std::error::Error;
+use structopt::StructOpt;
 
 fn main() {
     if let Err(e) = error_main() {
@@ -9,6 +10,6 @@ fn main() {
 }
 
 fn error_main() -> Result<(), Box<Error>> {
-    let config = Config::default();
+    let config = Config::from_args();
     jot::run(&config)
 }

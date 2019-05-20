@@ -1,17 +1,16 @@
+use crate::config::Config;
 use ansi_term::Colour::Purple;
-use chrono::{prelude::*, ParseResult};
-use clap::ArgMatches;
+use chrono::prelude::*;
 use rusqlite::{Connection, Row, NO_PARAMS};
 use std::error::Error;
 use std::io;
 
-fn parse_date(s: &str) -> ParseResult<i64> {
-    Local
-        .datetime_from_str(&format!("{} 00:00:00", s), "%d-%m-%Y %T")
-        .map(|d| d.timestamp())
-}
-
-fn print_entry(row: &Row, color: bool, json: bool, writer: &mut impl std::io::Write) -> Result<(), io::Error> {
+fn print_entry(
+    row: &Row,
+    color: bool,
+    json: bool,
+    writer: &mut impl std::io::Write,
+) -> Result<(), io::Error> {
     let entry: String = row.get(0);
     let timestamp = row.get(1);
     let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc)
@@ -20,20 +19,22 @@ fn print_entry(row: &Row, color: bool, json: bool, writer: &mut impl std::io::Wr
         .to_string();
 
     if json {
-        writeln!(writer, "{{\"entry\":{:?},\"timestamp\":{}}}", entry, timestamp)
+        writeln!(
+            writer,
+            "{{\"entry\":{:?},\"timestamp\":{}}}",
+            entry, timestamp
+        )
+    } else if color {
+        writeln!(writer, "{}\n{}", Purple.paint(format!("# {}", date)), entry)
     } else {
-        if color {
-            writeln!(writer, "{}\n{}", Purple.paint(format!("# {}", date)), entry)
-        } else {
-            writeln!(writer, "# {}\n{}", date, entry)
-        }
+        writeln!(writer, "# {}\n{}", date, entry)
     }
 }
 
-pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
-    let from = matches.value_of("from").map(|f| parse_date(f));
-    let to = matches.value_of("to").map(|t| parse_date(t));
-    let pattern = matches.value_of("pattern");
+pub fn list(conn: &Connection, config: &Config) -> Result<(), Box<Error>> {
+    let from = config.from;
+    let to = config.to;
+    let pattern = &config.pattern;
 
     let mut query = String::from("SELECT entry, date FROM entries ");
     if from.is_some() || to.is_some() || pattern.is_some() {
@@ -41,14 +42,14 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
     }
     let mut first = true;
     if let Some(f) = from {
-        query.push_str(&format!("date > {} ", f?));
+        query.push_str(&format!("date > {} ", f));
         first = false;
     }
     if let Some(t) = to {
         if !first {
             query.push_str("AND ");
         }
-        query.push_str(&format!("date < {} ", t?));
+        query.push_str(&format!("date < {} ", t));
         first = false;
     }
     if let Some(p) = pattern {
@@ -58,11 +59,11 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
         query.push_str(&format!("entry LIKE '%{}%' ", p));
     }
 
-    if matches.is_present("reverse") {
+    if config.reverse {
         query.push_str("ORDER BY id DESC ");
     }
 
-    if let Some(n) = matches.value_of("count") {
+    if let Some(n) = config.count {
         query.push_str(&format!(
             "LIMIT {} OFFSET (SELECT COUNT(*) FROM entries) - {0} ",
             n
@@ -77,8 +78,8 @@ pub fn list(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
     let mut writer = io::BufWriter::new(handle);
     while let Some(result_row) = rows.next() {
         let row = result_row?;
-        let color = atty::is(atty::Stream::Stdout) && !matches.is_present("nocolor");
-        print_entry(&row, color, matches.is_present("json"), &mut writer)?;
+        let color = atty::is(atty::Stream::Stdout) && !config.no_color;
+        print_entry(&row, color, config.json, &mut writer)?;
     }
 
     Ok(())

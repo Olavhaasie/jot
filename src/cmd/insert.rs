@@ -1,4 +1,4 @@
-use clap::ArgMatches;
+use crate::config::Config;
 use rusqlite::Connection;
 use std::{error::Error, io, io::Read, process};
 
@@ -29,9 +29,9 @@ fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
     }
 }
 
-fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
-    if let Some(editor) = matches.value_of("editor") {
-        get_entry_from_editor(editor)
+fn get_entry(config: &Config) -> Result<String, Box<Error>> {
+    if let Some(editor) = &config.editor {
+        get_entry_from_editor(&editor)
     } else {
         if atty::is(atty::Stream::Stdin) {
             println!("Press ^D to save and ^C to abort.");
@@ -43,8 +43,8 @@ fn get_entry(matches: &ArgMatches) -> Result<String, Box<Error>> {
     }
 }
 
-pub fn insert(conn: &Connection, matches: &ArgMatches) -> Result<(), Box<Error>> {
-    let entry = get_entry(&matches)?;
+pub fn insert(conn: &Connection, config: &Config) -> Result<(), Box<Error>> {
+    let entry = get_entry(&config)?;
 
     if !entry.is_empty() {
         let mut statement = conn.prepare(INSERT_QUERY)?;

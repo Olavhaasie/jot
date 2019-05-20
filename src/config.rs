@@ -1,85 +1,73 @@
 use crate::cmd::Command;
-use clap::{AppSettings, Arg, ArgGroup, ArgMatches};
+use chrono::{prelude::*, ParseResult};
+use std::path::PathBuf;
+use structopt::StructOpt;
 
-pub struct Config<'a> {
-    pub command: Command,
-    pub matches: ArgMatches<'a>,
+fn parse_date(s: &str) -> ParseResult<i64> {
+    Local
+        .datetime_from_str(&format!("{} 00:00:00", s), "%d-%m-%Y %T")
+        .map(|d| d.timestamp())
 }
 
-impl<'a> Config<'a> {
-    pub fn default() -> Config<'a> {
-        let args = &[
-            Arg::with_name("nocolor")
-                .long("no-color")
-                .help("disables colored output"),
-            Arg::with_name("db")
-                .short("d")
-                .long("database")
-                .value_name("FILE")
-                .takes_value(true)
-                .help("journal database to read from"),
-            Arg::with_name("editor")
-                .short("e")
-                .long("editor")
-                .value_name("CMD")
-                .takes_value(true)
-                .help("editor to use when inserting a new journal entry"),
-            Arg::with_name("list")
-                .short("l")
-                .long("list")
-                .help("lists all journal entries"),
-            Arg::with_name("json")
-                .long("json")
-                .help("outputs in json format"),
-            Arg::with_name("count")
-                .short("n")
-                .long("entries")
-                .value_name("NUM")
-                .takes_value(true)
-                .help("limits the amount of latest entries"),
-            Arg::with_name("from")
-                .short("f")
-                .long("from")
-                .value_name("DATE")
-                .takes_value(true)
-                .help("sets lower boundary date to retrieve journal entries"),
-            Arg::with_name("to")
-                .short("t")
-                .long("to")
-                .value_name("DATE")
-                .takes_value(true)
-                .help("sets upper boundary date to retrieve journal entries"),
-            Arg::with_name("pattern")
-                .short("p")
-                .long("pattern")
-                .value_name("PATTERN")
-                .takes_value(true)
-                .help(
-                    "case insensitive pattern to look for inside journal entries. \
-                     '_' can be used as wildcard character and '%' for one or more",
-                ),
-            Arg::with_name("reverse")
-                .short("r")
-                .long("reverse")
-                .help("reverse the date output order"),
-        ];
+#[derive(Debug, StructOpt)]
+#[structopt(raw(setting = "structopt::clap::AppSettings::ColoredHelp"))]
+pub struct Config {
+    #[structopt(long = "no-color")]
+    /// Disables colored output.
+    pub no_color: bool,
 
-        let list_group = ArgGroup::with_name("list-mode")
-            .args(&["list", "json", "count", "from", "to", "pattern", "reverse"])
-            .required(false)
-            .multiple(true);
+    #[structopt(short = "d", long = "database", parse(from_os_str))]
+    /// Journal database to read entries from.
+    pub database: Option<PathBuf>,
 
-        let matches = app_from_crate!()
-            .setting(AppSettings::ColoredHelp)
-            .max_term_width(100)
-            .args(args)
-            .group(list_group)
-            .get_matches();
+    #[structopt(short = "e", long = "editor")]
+    /// Editor to use when inserting a new journal entry.
+    pub editor: Option<String>,
 
-        let list = matches.is_present("list-mode");
-        Config {
-            command: if list { Command::List } else { Command::Insert },
-            matches,
+    #[structopt(short = "l", long = "list")]
+    /// Lists all journal entries.
+    pub list: bool,
+
+    #[structopt(long = "json")]
+    /// Outputs in JSON format.
+    pub json: bool,
+
+    #[structopt(short = "n")]
+    /// Limits the amount of latest entries.
+    pub count: Option<u64>,
+
+    #[structopt(short = "f", long = "from", parse(try_from_str = "parse_date"))]
+    /// Sets lower boundary date to retrieve journal entries.
+    pub from: Option<i64>,
+
+    #[structopt(short = "t", long = "to", parse(try_from_str = "parse_date"))]
+    /// Sets upper boundary date to retrieve journal entries.
+    pub to: Option<i64>,
+
+    #[structopt(short = "p", long = "pattern")]
+    /// Case insensitive pattern to look for inside journal entries.
+    /// '_' can be used as wildcard character and '%' for one or more
+    pub pattern: Option<String>,
+
+    #[structopt(short = "r", long = "reverse")]
+    /// Reverse the date output order.
+    pub reverse: bool,
+}
+
+impl Config {
+    pub fn command(&self) -> Command {
+        let list = self.list
+            || self.json
+            || self.count.is_some()
+            || self.from.is_some()
+            || self.to.is_some()
+            || self.pattern.is_some()
+            || self.reverse;
+
+        if list {
+            Command::List
+        } else {
+            Command::Insert
         }
     }
 }
