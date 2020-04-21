@@ -1,7 +1,7 @@
 [package]
 name = "jot"
-version = "0.6.0"
-authors = ["Olav de Haas"]
+version = "0.6.1"
+authors = ["Olav de Haas <https://github.com/Olavhaasie>"]
 description = "terminal based digital personal journal📔"
 edition = "2018"
 
@@ -21,15 +21,15 @@ opt-level = "z"
 
 [dependencies]
 atty = "0.2"
-ansi_term = "0.11"
+ansi_term = "0.12"
 chrono = "0.4"
-structopt = "0.2"
+structopt = "0.3"
 tempfile = "3"
-dirs = "1.0"
+dirs = "2"
 
 [dependencies.rusqlite]
-version = "0.16"
+version = "0.22"
 features = ["bundled"]
 
 [dev-dependencies]
-assert_cmd = "0.11"
+assert_cmd = "1"

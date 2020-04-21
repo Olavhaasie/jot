@@ -4,7 +4,7 @@ use std::{error::Error, io, io::Read, process};
 
 const INSERT_QUERY: &str = "INSERT INTO entries (entry, date) VALUES (?, strftime('%s','now'))";
 
-fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
+fn get_entry_from_editor(editor: &str) -> Result<String, Box<dyn Error>> {
     let mut tmp = tempfile::Builder::new()
         .prefix("jot-entry-")
         .suffix(".txt")
@@ -29,7 +29,7 @@ fn get_entry_from_editor(editor: &str) -> Result<String, Box<Error>> {
     }
 }
 
-fn get_entry(config: &Config) -> Result<String, Box<Error>> {
+fn get_entry(config: &Config) -> Result<String, Box<dyn Error>> {
     if let Some(editor) = &config.editor {
         get_entry_from_editor(&editor)
     } else {
@@ -43,7 +43,7 @@ fn get_entry(config: &Config) -> Result<String, Box<Error>> {
     }
 }
 
-pub fn insert(conn: &Connection, config: &Config) -> Result<(), Box<Error>> {
+pub fn insert(conn: &Connection, config: &Config) -> Result<(), Box<dyn Error>> {
     let entry = get_entry(&config)?;
 
     if !entry.is_empty() {

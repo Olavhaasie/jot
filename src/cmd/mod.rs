@@ -14,7 +14,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn run(&self, conn: &Connection, config: &Config) -> Result<(), Box<Error>> {
+    pub fn run(&self, conn: &Connection, config: &Config) -> Result<(), Box<dyn Error>> {
         match self {
             Command::Insert => insert(conn, config),
             Command::List => list(conn, config),

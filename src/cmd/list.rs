@@ -10,9 +10,9 @@ fn print_entry(
     color: bool,
     json: bool,
     writer: &mut impl std::io::Write,
-) -> Result<(), io::Error> {
-    let entry: String = row.get(0);
-    let timestamp = row.get(1);
+) -> Result<(), Box<dyn Error>> {
+    let entry: String = row.get(0)?;
+    let timestamp = row.get(1)?;
     let date = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(timestamp, 0), Utc)
         .with_timezone(&Local)
         .format("%b %e %Y - %H:%M")
@@ -23,15 +23,16 @@ fn print_entry(
             writer,
             "{{\"entry\":{:?},\"timestamp\":{}}}",
             entry, timestamp
-        )
+        )?;
     } else if color {
-        writeln!(writer, "{}\n{}", Purple.paint(format!("# {}", date)), entry)
+        writeln!(writer, "{}\n{}", Purple.paint(format!("# {}", date)), entry)?;
     } else {
-        writeln!(writer, "# {}\n{}", date, entry)
+        writeln!(writer, "# {}\n{}", date, entry)?;
     }
+    Ok(())
 }
 
-pub fn list(conn: &Connection, config: &Config) -> Result<(), Box<Error>> {
+pub fn list(conn: &Connection, config: &Config) -> Result<(), Box<dyn Error>> {
     let from = config.from;
     let to = config.to;
     let pattern = &config.pattern;
@@ -76,9 +77,8 @@ pub fn list(conn: &Connection, config: &Config) -> Result<(), Box<Error>> {
     let stdout = io::stdout();
     let handle = stdout.lock();
     let mut writer = io::BufWriter::new(handle);
-    while let Some(result_row) = rows.next() {
-        let row = result_row?;
-        let color = atty::is(atty::Stream::Stdout) && !config.no_color;
+    let color = atty::is(atty::Stream::Stdout) && !config.no_color;
+    while let Some(row) = rows.next()? {
         print_entry(&row, color, config.json, &mut writer)?;
     }
 

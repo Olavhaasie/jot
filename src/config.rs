@@ -10,7 +10,7 @@ fn parse_date(s: &str) -> ParseResult<i64> {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(raw(setting = "structopt::clap::AppSettings::ColoredHelp"))]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Config {
     #[structopt(long = "no-color")]
     /// Disables colored output.
@@ -36,11 +36,11 @@ pub struct Config {
     /// Limits the amount of latest entries.
     pub count: Option<u64>,
 
-    #[structopt(short = "f", long = "from", parse(try_from_str = "parse_date"))]
+    #[structopt(short = "f", long = "from", parse(try_from_str = parse_date))]
     /// Sets lower boundary date to retrieve journal entries.
     pub from: Option<i64>,
 
-    #[structopt(short = "t", long = "to", parse(try_from_str = "parse_date"))]
+    #[structopt(short = "t", long = "to", parse(try_from_str = parse_date))]
     /// Sets upper boundary date to retrieve journal entries.
     pub to: Option<i64>,
 

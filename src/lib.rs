@@ -14,7 +14,7 @@ const CREATE_QUERY: &str = "BEGIN;
     CREATE INDEX date_index on entries(date);
     COMMIT;";
 
-pub fn run(config: &Config) -> Result<(), Box<Error>> {
+pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     let default_path = dirs::home_dir().unwrap().join(DEFAULT_FILENAME);
     let path = match &config.database {
         Some(path) => path,
@@ -36,7 +36,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     config.command().run(&connection, &config)
 }
 
-fn get_connection(path: &Path) -> Result<(Connection, bool), Box<Error>> {
+fn get_connection(path: &Path) -> Result<(Connection, bool), Box<dyn Error>> {
     let path_exists = path.exists();
     if path_exists && !path.is_file() {
         return Err(io::Error::new(io::ErrorKind::Other, "given path is not a file").into());

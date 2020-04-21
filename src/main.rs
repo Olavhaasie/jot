@@ -9,7 +9,7 @@ fn main() {
     }
 }
 
-fn error_main() -> Result<(), Box<Error>> {
+fn error_main() -> Result<(), Box<dyn Error>> {
     let config = Config::from_args();
     jot::run(&config)
 }
