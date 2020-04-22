@@ -20,7 +20,7 @@ pub struct Config {
     /// Journal database to read entries from.
     pub database: Option<PathBuf>,
 
-    #[structopt(short = "e", long = "editor")]
+    #[structopt(short = "e", long = "editor", env = "EDITOR")]
     /// Editor to use when inserting a new journal entry.
     pub editor: Option<String>,
 
